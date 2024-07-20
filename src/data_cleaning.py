@@ -13,7 +13,7 @@ class DataStrategy(ABC):
         pass
 
 class DataPreProcessStrategy(DataStrategy):
-    def handle_data(self, data: pd.DataFrame) -> pd.DataFrame | pd.Series:
+    def handle_data(self, data: pd.DataFrame) -> Union[pd.DataFrame, pd.Series]:
         try:
             data = data.drop(
                 [
