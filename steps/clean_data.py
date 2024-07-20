@@ -23,8 +23,5 @@ def clean_df(df: pd.DataFrame) -> Tuple[
         logging.info("Data Cleaning Completed")
         return X_train, X_test, y_train, y_test
     except Exception as e:
-        logging.error("Error in cleaning data:", e)
+        logging.error("Error in cleaning data:", exc_info=True)
         raise e
-    
-
-
