@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np 
 import pandas as pd 
@@ -9,11 +9,11 @@ from sklearn.model_selection import train_test_split
 
 class DataStrategy(ABC):
     @abstractmethod
-    def handle_data(self, data: pd.DataFrame) -> Union[pd.DataFrame, pd.Series]:
+    def handle_data(self, data: pd.DataFrame) -> Union[pd.DataFrame, pd.Series, Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]]:
         pass
 
 class DataPreProcessStrategy(DataStrategy):
-    def handle_data(self, data: pd.DataFrame) -> Union[pd.DataFrame, pd.Series]:
+    def handle_data(self, data: pd.DataFrame) -> pd.DataFrame:
         try:
             data = data.drop(
                 [
@@ -35,34 +35,33 @@ class DataPreProcessStrategy(DataStrategy):
             data = data.drop(cols_to_drop, axis=1)
             return data
         except Exception as e:
-            logging.error("Error in preprocessing data:",e)
+            logging.error("Error in preprocessing data:", exc_info=True)
             raise e
         
 class DataDivideStrategy(DataStrategy):
-    def handle_data(self, data: pd.DataFrame) -> Union[pd.DataFrame, pd.Series]:
+    def handle_data(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
         try:
             X = data.drop(["review_score"], axis=1)
             y = data["review_score"]
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
             return X_train, X_test, y_train, y_test
         except Exception as e:
-            logging.error("Error in dividing data:",e)
+            logging.error("Error in dividing data:", exc_info=True)
             raise e
         
 class DataCleaning:
     def __init__(self, data: pd.DataFrame, strategy: DataStrategy):
         self.data = data
         self.strategy = strategy 
-    def handle_data(self) -> Union[pd.DataFrame, pd.Series]:
+
+    def handle_data(self) -> Union[pd.DataFrame, pd.Series, Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]]:
         try:
             return self.strategy.handle_data(self.data)
         except Exception as e:
-            logging.error("Error in handling data:", e)
+            logging.error("Error in handling data:", exc_info=True)
             raise e
 
 # if __name__ == "__main__":
-#     data = pd.read_csv("data\olist_customers_dataset.csv")
+#     data = pd.read_csv("data/olist_customers_dataset.csv")
 #     data_cleaning = DataCleaning(data, DataPreProcessStrategy())
 #     data_cleaning.handle_data()
-        
-            
